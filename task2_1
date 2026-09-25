@@ -1,0 +1,61 @@
+import numpy as np
+
+C_raw = np.array([
+    [0.07, -0.08, 0.11, -0.18],
+    [0.14, -0.42, 0.00, 0.21],
+    [0.13, 0.31, 0.00, -0.19],
+    [0.08, -0.33, 0.00, 0.28]
+], dtype=float)
+
+d_raw = np.array([-0.51, 1.18, -1.02, -0.28], dtype=float)
+
+# Перетворення системи так, щоб матриця С мала нулі на головній діагоналі
+C = np.zeros_like(C_raw)
+d = np.zeros_like(d_raw)
+
+for i in range(len(d_raw)):
+    factor = 1.0 - C_raw[i, i]
+    for j in range(len(d_raw)):
+        if i != j:
+            C[i, j] = C_raw[i, j] / factor
+    d[i] = d_raw[i] / factor
+
+
+def simple_iteration(C, d, epsilon=1e-4, max_iter=1000):
+    # Початкове наближення (використовуємо вектор вільних членів)
+    x_prev = np.copy(d)
+
+    # Норма матриці C (максимальна сума модулів елементів у рядках)
+    q = np.linalg.norm(C, ord=np.inf)
+    print(f"Норма матриці C (q) = {q:.4f}")
+
+    if q >= 1:
+        print("Попередження: Норма матриці >= 1. Достатня умова збіжності не виконується.")
+
+    # Визначення критерію зупинки згідно з правилом оцінки похибки
+    for k in range(1, max_iter + 1):
+        x_next = np.dot(C, x_prev) + d
+        diff_norm = np.max(np.abs(x_next - x_prev))
+
+        if q <= 0.5:
+            tolerance = epsilon
+        elif 0.5 < q < 1:
+            tolerance = ((1 - q) / q) * epsilon
+        else:
+            tolerance = epsilon  # Запасний варіант, якщо q >= 1
+
+        if diff_norm <= tolerance:
+            return x_next, k
+
+        x_prev = x_next
+
+    raise ValueError("Ітераційний процес не зійшовся за виділену кількість кроків.")
+
+
+try:
+    x_iter, iters = simple_iteration(C, d, epsilon=1e-4)
+    print(f"\nРозв'язок МПІ (знайдено за {iters} ітерацій):")
+    for i, x in enumerate(x_iter):
+        print(f"x_{i + 1} = {x:.4f}")
+except Exception as e:
+    print(e)
