@@ -1,0 +1,33 @@
+import numpy as np
+
+A = np.array([
+    [1, 2, 3, 5],
+    [-2, 4, 3, -4],
+    [3, 2, -1, 6],
+    [4, -3, 2, 1]
+], dtype=float)
+
+B = np.array([7, 12, -3, -3], dtype=float)
+
+
+def cramer_method(A, B):
+    n = A.shape[0]
+    det_A = np.linalg.det(A)
+
+    if np.isclose(det_A, 0):
+        raise ValueError("Визначник головної матриці дорівнює нулю. Метод Крамера не застосовний.")
+
+    X = np.zeros(n)
+    for i in range(n):
+        # Створюємо копію матриці A та замінюємо i-й стовпець на вектор B
+        A_i = A.copy()
+        A_i[:, i] = B
+        X[i] = np.linalg.det(A_i) / det_A
+
+    return X
+
+
+x_cramer = cramer_method(A, B)
+print("Розв'язок методом Крамера:")
+for i, x in enumerate(x_cramer):
+    print(f"x_{i + 1} = {x:.4f}")
