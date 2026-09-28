@@ -14,7 +14,7 @@ def lu_decomposition_method(A, B):
     L = np.zeros((n, n))
     U = np.zeros((n, n))
 
-    # Крок 1: Побудова матриць L та U (алгоритм Дулітла)
+    # Крок 1: Побудова матриць L та U 
     for i in range(n):
         L[i, i] = 1.0
         for k in range(i, n):
